@@ -1,3 +1,4 @@
+import mimetypes
 import os
 
 import dj_database_url
@@ -27,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
+    'phonenumber_field',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +124,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
 ]
+
+mimetypes.add_type("application/javascript", ".js", True)
