@@ -70,15 +70,18 @@ def register_order(request):
             firstname=order_raw['firstname'],
             lastname=order_raw['lastname'],
             contact_phone=order_raw['phonenumber'],
-            address=order_raw['address']
+            address=order_raw['address'],
         )
 
         for prod in order_raw['products']:
             product = Product.objects.get(id=prod['product'])
-            ProductInOrder.objects.create(order=order, product=product, quantity=prod['quantity'])
+            ProductInOrder.objects.create(
+                order=order,
+                product=product,
+                quantity=prod['quantity'],
+            )
 
     except ValueError:
-        # Response(request.data)
         return Response({
             'error': 'ошибка в запросе',
         })
