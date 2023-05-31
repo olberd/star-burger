@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import Product, Order, ProductInOrder
@@ -99,22 +100,22 @@ def register_order(request):
     except IntegrityError as integrity:
         return Response({
             'error': f'{integrity} error'
-        })
+        }, status=400)
     except ObjectDoesNotExist as error:
         return Response({
             'error': f'{error}'
-        })
+        }, status=400)
     except TypeError:
         return Response({
             'error': 'products are not list'
-        })
+        }, status=400)
     except KeyError as key:
         return Response({
             'error': f'missing {key} value'
-        })
+        }, status=400)
     except ValueError as value:
         return Response({
             'error': f'wrong {value} value',
-        })
+        }, status=400)
 
     return Response({})
