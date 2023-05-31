@@ -1,5 +1,3 @@
-import json
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -7,7 +5,6 @@ from django.templatetags.static import static
 from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
 
 from .models import Product, Order, ProductInOrder
 
@@ -64,58 +61,45 @@ def product_list_api(request):
     })
 
 
+def validate(data):
+    errors = []
+    if not isinstance(data['firstname'], str):
+        errors.append(['не указано имя'])
+    if not isinstance(data['lastname'], str):
+        errors.append(['не указана фамилия'])
+    if not isinstance(data['address'], str):
+        errors.append(['не указан адрес'])
+    if not data['phonenumber']:
+        errors.append(['не указан номер телефона'])
+    if isinstance(data['products'], list) and not data['products']:
+        errors.append(['в заказе нет товаров'])
+    if data['phonenumber'] and not PhoneNumber.from_string(data['phonenumber'], region='RU').is_valid():
+        errors.append(['не правильный формат номера телефона'])
+    if IntegrityError:
+        errors.append(['integrity error'])
+    if ObjectDoesNotExist:
+        errors.append(['object does not exist'])
+
+    if errors:
+        raise ValidationError(errors)
+
+
 @api_view(['POST'])
 def register_order(request):
-    try:
-        order_raw = request.data
-        if not isinstance(order_raw['firstname'], str):
-            raise ValueError('firstname')
-        if not isinstance(order_raw['lastname'], str):
-            raise ValueError('lastname')
-        if not isinstance(order_raw['address'], str):
-            raise ValueError('address')
-        if not order_raw['phonenumber']:
-            raise KeyError('phonenumber')
-        if isinstance(order_raw['products'], list) and not order_raw['products']:
-            raise KeyError('products')
+    order_raw = validate(request.data)
 
-        phone = PhoneNumber.from_string(order_raw['phonenumber'], region='RU')
-        if not phone.is_valid():
-            raise ValueError('phonenumber')
+    order = Order.objects.create(
+        firstname=order_raw['firstname'],
+        lastname=order_raw['lastname'],
+        contact_phone=order_raw['phonenumber'],
+        address=order_raw['address'],
+    )
 
-        order = Order.objects.create(
-            firstname=order_raw['firstname'],
-            lastname=order_raw['lastname'],
-            contact_phone=order_raw['phonenumber'],
-            address=order_raw['address'],
+    for prod in order_raw['products']:
+        product = Product.objects.get(id=prod['product'])
+        ProductInOrder.objects.create(
+            order=order,
+            product=product,
+            quantity=prod['quantity'],
         )
 
-        for prod in order_raw['products']:
-            product = Product.objects.get(id=prod['product'])
-            ProductInOrder.objects.create(
-                order=order,
-                product=product,
-                quantity=prod['quantity'],
-            )
-    except IntegrityError as integrity:
-        return Response({
-            'error': f'{integrity} error'
-        }, status=400)
-    except ObjectDoesNotExist as error:
-        return Response({
-            'error': f'{error}'
-        }, status=400)
-    except TypeError:
-        return Response({
-            'error': 'products are not list'
-        }, status=400)
-    except KeyError as key:
-        return Response({
-            'error': f'missing {key} value'
-        }, status=400)
-    except ValueError as value:
-        return Response({
-            'error': f'wrong {value} value',
-        }, status=400)
-
-    return Response({})
