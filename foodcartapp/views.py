@@ -1,7 +1,10 @@
 import json
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.templatetags.static import static
+from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -62,10 +65,23 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    # TODO это лишь заглушка
     try:
         order_raw = request.data
-        print(order_raw)
+        if not isinstance(order_raw['firstname'], str):
+            raise ValueError('firstname')
+        if not isinstance(order_raw['lastname'], str):
+            raise ValueError('lastname')
+        if not isinstance(order_raw['address'], str):
+            raise ValueError('address')
+        if not order_raw['phonenumber']:
+            raise KeyError('phonenumber')
+        if isinstance(order_raw['products'], list) and not order_raw['products']:
+            raise KeyError('products')
+
+        phone = PhoneNumber.from_string(order_raw['phonenumber'], region='RU')
+        if not phone.is_valid():
+            raise ValueError('phonenumber')
+
         order = Order.objects.create(
             firstname=order_raw['firstname'],
             lastname=order_raw['lastname'],
@@ -80,9 +96,25 @@ def register_order(request):
                 product=product,
                 quantity=prod['quantity'],
             )
-
-    except ValueError:
+    except IntegrityError as integrity:
         return Response({
-            'error': 'ошибка в запросе',
+            'error': f'{integrity} error'
         })
-    return Response(request.data)
+    except ObjectDoesNotExist as error:
+        return Response({
+            'error': f'{error}'
+        })
+    except TypeError:
+        return Response({
+            'error': 'products are not list'
+        })
+    except KeyError as key:
+        return Response({
+            'error': f'missing {key} value'
+        })
+    except ValueError as value:
+        return Response({
+            'error': f'wrong {value} value',
+        })
+
+    return Response({})
