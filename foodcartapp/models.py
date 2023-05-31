@@ -7,6 +7,7 @@ class Restaurant(models.Model):
     name = models.CharField(
         'название',
         max_length=50,
+        db_index=True,
 
     )
     address = models.CharField(
@@ -18,6 +19,7 @@ class Restaurant(models.Model):
         'контактный телефон',
         max_length=50,
         blank=True,
+        db_index=True,
     )
 
     class Meta:
@@ -41,7 +43,8 @@ class ProductQuerySet(models.QuerySet):
 class ProductCategory(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
+        db_index=True,
     )
 
     class Meta:
@@ -55,7 +58,8 @@ class ProductCategory(models.Model):
 class Product(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
+        db_index=True,
     )
     category = models.ForeignKey(
         ProductCategory,
@@ -111,7 +115,7 @@ class RestaurantMenuItem(models.Model):
     availability = models.BooleanField(
         'в продаже',
         default=True,
-        db_index=True
+        db_index=True,
     )
 
     class Meta:
@@ -129,18 +133,22 @@ class Order(models.Model):
     firstname = models.CharField(
         'имя',
         max_length=50,
+        db_index=True,
     )
     lastname = models.CharField(
         'фамилия',
         max_length=50,
+        db_index=True,
     )
     contact_phone = PhoneNumberField(
-        blank=True
+        blank=True,
+        db_index = True,
     )
     address = models.CharField(
         'адрес доставки',
         max_length=200,
         blank=True,
+        db_index=True,
     )
 
     class Meta:
