@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, ModelSerializer
+from rest_framework.parsers import JSONParser
 
 from .models import Product, Order, ProductInOrder
 
@@ -103,7 +104,7 @@ class ProductsInOrderSerializer(Serializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = ProductsInOrderSerializer(many=True)
+    products = ProductsInOrderSerializer(many=True, write_only=True)
     id = IntegerField(required=False)
 
     def validate_products(self, value):
@@ -148,4 +149,4 @@ def register_order(request):
 
     ProductInOrder.objects.bulk_create(products)
 
-    return Response({'order': order.id})
+    return Response(OrderSerializer(order).data)
