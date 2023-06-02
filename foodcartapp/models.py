@@ -141,13 +141,11 @@ class Order(models.Model):
         db_index=True,
     )
     phonenumber = PhoneNumberField(
-        blank=True,
         db_index=True,
     )
     address = models.CharField(
         'адрес доставки',
         max_length=200,
-        blank=True,
         db_index=True,
     )
 
@@ -156,7 +154,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f'{self.firstname} {self.lastname} {self.contact_phone}'
+        return f'{self.firstname} {self.lastname} {self.phonenumber}'
 
 
 class ProductInOrder(models.Model):
