@@ -66,29 +66,6 @@ def product_list_api(request):
     })
 
 
-# def validate(data):
-#     errors = []
-#     if not isinstance(data["firstname"], str):
-#         errors.append(['не указано имя'])
-#     if not isinstance(data['lastname'], str):
-#         errors.append(['не указана фамилия'])
-#     if not isinstance(data['address'], str):
-#         errors.append(['не указан адрес'])
-#     if not data['phonenumber']:
-#         errors.append(['не указан номер телефона'])
-#     if isinstance(data['products'], list) and not data['products']:
-#         errors.append(['в заказе нет товаров'])
-#     if data['phonenumber'] and not PhoneNumber.from_string(data['phonenumber'], region='RU').is_valid():
-#         errors.append(['не правильный формат номера телефона'])
-#     if IntegrityError:
-#         errors.append(['integrity error'])
-#     if ObjectDoesNotExist:
-#         errors.append(['object does not exist'])
-#
-#     if errors:
-#         raise ValidationError(errors)
-
-
 class ProductsInOrderSerializer(Serializer):
     quantity = IntegerField(validators=[MinValueValidator(0), ])
     product = IntegerField()
