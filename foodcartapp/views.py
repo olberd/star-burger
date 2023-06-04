@@ -75,7 +75,7 @@ class ProductsInOrderSerializer(Serializer):
         try:
             product = Product.objects.get(id=value)
         except ObjectDoesNotExist:
-            raise ValidationError('Заказ с неуществующим id продукта.')
+            raise ValidationError('Заказ с несуществующим id продукта.')
 
         return product
 
@@ -109,6 +109,7 @@ class OrderSerializer(ModelSerializer):
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
+    print(serializer)
     serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
@@ -122,6 +123,7 @@ def register_order(request):
         order=order,
         product=fields['product'],
         quantity=fields['quantity'],
+        fixed_price=fields['product'].price,
     ) for fields in order_products_fields]
 
     ProductInOrder.objects.bulk_create(products)
