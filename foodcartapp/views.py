@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 from phonenumber_field.phonenumber import PhoneNumber
@@ -107,9 +107,9 @@ class OrderSerializer(ModelSerializer):
 
 
 @api_view(['POST'])
+@transaction.atomic
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
-    print(serializer)
     serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
@@ -118,6 +118,7 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address'],
     )
+
     order_products_fields = serializer.validated_data['products']
     products = [ProductInOrder(
         order=order,
@@ -129,3 +130,4 @@ def register_order(request):
     ProductInOrder.objects.bulk_create(products)
 
     return Response(OrderSerializer(order).data)
+
