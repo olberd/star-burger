@@ -92,8 +92,20 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.with_price().order_by('id')
+    orders = Order.objects.with_price().exclude(status='CO').order_by('-id')
+    order_collections = []
+    for order in orders:
+        order_collection = {
+            'id': order.id,
+            'status': order.get_status_display(),
+            'order_cost': order.order_cost,
+            'firstname': order.firstname,
+            'lastname': order.lastname,
+            'phonenumber': order.phonenumber,
+            'address': order.address,
+        }
+        order_collections.append(order_collection)
 
     return render(request, template_name='order_items.html', context={
-        'order_items': order_items,
+        'order_collections': order_collections,
     })

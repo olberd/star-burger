@@ -136,6 +136,17 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    RAW = 'RW'
+    PROCESSED = 'PR'
+    DELIVERY = 'DE'
+    COMPLETE = 'CO'
+    STATUS_CHOICES = [
+        (RAW, 'Необработанный'),
+        (PROCESSED, 'В ресторане'),
+        (DELIVERY, 'В доставке'),
+        (COMPLETE, 'Завершен')
+    ]
+
     firstname = models.CharField(
         'имя',
         max_length=50,
@@ -152,6 +163,13 @@ class Order(models.Model):
     address = models.CharField(
         'адрес доставки',
         max_length=200,
+        db_index=True,
+    )
+    status = models.CharField(
+        'Статус заказа',
+        max_length=2,
+        choices=STATUS_CHOICES,
+        default=RAW,
         db_index=True,
     )
 
