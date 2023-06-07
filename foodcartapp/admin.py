@@ -122,6 +122,7 @@ class OrderAdmin(admin.ModelAdmin):
         'address',
         'status',
         'comment',
+        'registered_at',
     ]
     inlines = [
         ProductInOrderInline,
