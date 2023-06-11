@@ -137,15 +137,15 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    RAW = 'RW'
-    PROCESSED = 'PR'
-    DELIVERY = 'DE'
-    COMPLETE = 'CO'
+    # RAW = 'A'
+    # PROCESSED = 'B'
+    # DELIVERY = 'C'
+    # COMPLETE = 'D'
     STATUS_CHOICES = [
-        (RAW, 'Необработанный'),
-        (PROCESSED, 'В ресторане'),
-        (DELIVERY, 'В доставке'),
-        (COMPLETE, 'Завершен')
+        ('A', 'Необработанный'),
+        ('B', 'В ресторане'),
+        ('C', 'В доставке'),
+        ('D', 'Завершен')
     ]
 
     firstname = models.CharField(
@@ -170,11 +170,13 @@ class Order(models.Model):
         'Статус заказа',
         max_length=2,
         choices=STATUS_CHOICES,
-        default=RAW,
+        default='A',
         db_index=True,
     )
     comment = models.TextField(
         'Комментарий к заказу',
+        blank=True,
+        null=True,
     )
     registered_at = models.DateTimeField(
         'Время заказа',
@@ -193,6 +195,15 @@ class Order(models.Model):
         null=True,
         blank=True,
         db_index=True,
+    )
+    cooking_restaurant = models.ForeignKey(
+        Restaurant,
+        verbose_name='Ресторан для приготовления заказа',
+        related_name='orders',
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
     )
 
     objects = OrderQuerySet.as_manager()

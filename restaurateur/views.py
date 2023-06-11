@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -90,11 +90,34 @@ def view_restaurants(request):
     })
 
 
+def get_product_restaurants(restaurant_menu_products, order_products):
+    product_restaurants = [
+        rest_prod.restaurant for rest_prod in restaurant_menu_products
+        if rest_prod.availability and rest_prod.product.id == order_products.product.id
+    ]
+    return product_restaurants
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.with_price().exclude(status='CO').order_by('-id')
+    # orders = Order.objects.with_price().exclude(status='CO').order_by('-id').\
+    #     prefetch_related('products__product__menu_items__restaurant')
+    orders = Order.objects.with_price().exclude(status='D').order_by('status').\
+        prefetch_related('cooking_restaurant', 'products', 'products__product')
+    restaurant_menu_products = RestaurantMenuItem.objects.filter(availability=True) \
+        .select_related('product', 'restaurant')
     order_collections = []
     for order in orders:
+        order.restaurants = set()
+        for prod in order.products.all():
+            rest_product = get_product_restaurants(
+                restaurant_menu_products,
+                prod
+            )
+            if not order.restaurants:
+                order.restaurants = set(rest_product)
+                continue
+            order.restaurants &= set(rest_product)
         order_collection = {
             'id': order.id,
             'status': order.get_status_display(),
@@ -104,9 +127,13 @@ def view_orders(request):
             'phonenumber': order.phonenumber,
             'address': order.address,
             'comment': order.comment,
+            'restaurants': order.restaurants,
+            'cooking_restaurant': order.cooking_restaurant,
         }
+
         order_collections.append(order_collection)
 
     return render(request, template_name='order_items.html', context={
         'order_collections': order_collections,
+
     })

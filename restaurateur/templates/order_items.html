@@ -3,6 +3,21 @@
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
 {% block content %}
+ <style>
+  summary {
+    display: block;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: '\25B6';
+    padding-right: 0.5em;
+  }
+  details[open] > summary::before {
+    content: '\25BC';
+  }
+  </style>
   <center>
     <h2>Необработанные заказы</h2>
   </center>
@@ -19,6 +34,7 @@
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Рестораны</th>
       <th>Комментарий</th>
       <th>Ссылка в админку</th>
 
@@ -32,6 +48,23 @@
         <td>{{ order.firstname }} {{ order.lastname }}</td>
         <td>{{ order.phonenumber }}</td>
         <td>{{ order.address }}</td>
+        <td>
+          {% if not order.cooking_restaurant %}
+              <details>
+                <summary>Рестораны</summary>
+                    <ul>
+                  {% for rest in order.restaurants %}
+                      <li>{{ rest.name }}</li>
+                  {% endfor %}
+                    </ul>
+              </details>
+          {% else %}
+            <b>Готовит:</b>
+            <br>
+            {{ order.cooking_restaurant }}
+          {% endif %}
+        </td>
+
         <td>{{ order.comment }}</td>
         <td> <a href="{%  url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.get_full_path|urlencode }}">Редактировать</a> </td>
       </tr>

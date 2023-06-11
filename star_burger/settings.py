@@ -126,6 +126,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 
+
 mimetypes.add_type("application/javascript", ".js", True)
 
 
