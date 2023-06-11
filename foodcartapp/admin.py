@@ -123,6 +123,7 @@ class OrderAdmin(admin.ModelAdmin):
         'status',
         'comment',
         'registered_at',
+        'cooking_restaurant',
     ]
     inlines = [
         ProductInOrderInline,

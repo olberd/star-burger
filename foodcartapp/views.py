@@ -103,7 +103,6 @@ class OrderSerializer(ModelSerializer):
             'lastname',
             'phonenumber',
             'address',
-            'registered_at',
             'products']
 
 
@@ -118,7 +117,6 @@ def register_order(request):
         lastname=serializer.validated_data['lastname'],
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address'],
-        registered_at=serializer.validated_data['registered_at']
 
     )
 
