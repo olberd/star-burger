@@ -83,7 +83,6 @@ class ProductsInOrderSerializer(Serializer):
 class OrderSerializer(ModelSerializer):
     products = ProductsInOrderSerializer(many=True, write_only=True)
     id = IntegerField(required=False)
-
     def validate_products(self, value):
         errors = []
         if not isinstance(value, list):

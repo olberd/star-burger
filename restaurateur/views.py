@@ -4,9 +4,10 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+
 from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
@@ -137,11 +138,11 @@ def view_orders(request):
                 continue
             order.restaurants &= set(rest_product)
 
-        delivery_coordinates = fetch_coordinates('69580003-8836-4bb6-82f1-9a4e31c7b2f1', order.address)
+        delivery_coordinates = fetch_coordinates(settings.YANDEX_API_KEY, order.address)
         if delivery_coordinates:
             coordinates_error = False
             for restaurant in order.restaurants:
-                restaurant_coordinates = fetch_coordinates('69580003-8836-4bb6-82f1-9a4e31c7b2f1', restaurant.address)
+                restaurant_coordinates = fetch_coordinates(settings.YANDEX_API_KEY, restaurant.address)
                 restaurant_dist = round(
                     distance.distance(restaurant_coordinates, delivery_coordinates).km, 2
                 )
