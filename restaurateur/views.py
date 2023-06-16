@@ -1,3 +1,4 @@
+import requests
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
+from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
@@ -98,17 +99,34 @@ def get_product_restaurants(restaurant_menu_products, order_products):
     return product_restaurants
 
 
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    # orders = Order.objects.with_price().exclude(status='CO').order_by('-id').\
-    #     prefetch_related('products__product__menu_items__restaurant')
     orders = Order.objects.with_price().exclude(status='D').order_by('status').\
-        prefetch_related('cooking_restaurant', 'products', 'products__product')
+        prefetch_related('cooking_restaurant', 'products', 'products__product', )
     restaurant_menu_products = RestaurantMenuItem.objects.filter(availability=True) \
         .select_related('product', 'restaurant')
     order_collections = []
     for order in orders:
         order.restaurants = set()
+        restaurant_distance = []
         for prod in order.products.all():
             rest_product = get_product_restaurants(
                 restaurant_menu_products,
@@ -118,6 +136,20 @@ def view_orders(request):
                 order.restaurants = set(rest_product)
                 continue
             order.restaurants &= set(rest_product)
+
+        delivery_coordinates = fetch_coordinates('69580003-8836-4bb6-82f1-9a4e31c7b2f1', order.address)
+        if delivery_coordinates:
+            coordinates_error = False
+            for restaurant in order.restaurants:
+                restaurant_coordinates = fetch_coordinates('69580003-8836-4bb6-82f1-9a4e31c7b2f1', restaurant.address)
+                restaurant_dist = round(
+                    distance.distance(restaurant_coordinates, delivery_coordinates).km, 2
+                )
+                restaurant_distance.append((restaurant.name, restaurant_dist))
+            restaurant_distance.sort(key=lambda x: x[1])
+        else:
+            coordinates_error = True
+
         order_collection = {
             'id': order.id,
             'status': order.get_status_display(),
@@ -127,12 +159,11 @@ def view_orders(request):
             'phonenumber': order.phonenumber,
             'address': order.address,
             'comment': order.comment,
-            'restaurants': order.restaurants,
+            'restaurants_distance': restaurant_distance,
+            'coordinates_error': coordinates_error,
             'cooking_restaurant': order.cooking_restaurant,
         }
-
         order_collections.append(order_collection)
-
     return render(request, template_name='order_items.html', context={
         'order_collections': order_collections,
 
