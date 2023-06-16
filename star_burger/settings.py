@@ -126,6 +126,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 
+YANDEX_API_KEY = env('YANDEX_KEY')
 
 mimetypes.add_type("application/javascript", ".js", True)
 
