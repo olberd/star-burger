@@ -137,10 +137,6 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    # RAW = 'A'
-    # PROCESSED = 'B'
-    # DELIVERY = 'C'
-    # COMPLETE = 'D'
     STATUS_CHOICES = [
         ('A', 'Необработанный'),
         ('B', 'В ресторане'),
