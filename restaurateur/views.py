@@ -11,6 +11,7 @@ from django.conf import settings
 from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from places.place_utils import fetch_coordinates
 
 
 class Login(forms.Form):
@@ -100,24 +101,6 @@ def get_product_restaurants(restaurant_menu_products, order_products):
     return product_restaurants
 
 
-def fetch_coordinates(apikey, address):
-    base_url = "https://geocode-maps.yandex.ru/1.x"
-    response = requests.get(base_url, params={
-        "geocode": address,
-        "apikey": apikey,
-        "format": "json",
-    })
-    response.raise_for_status()
-    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-    if not found_places:
-        return None
-
-    most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-    return lat, lon
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.with_price().exclude(status='D').order_by('status').\
@@ -138,11 +121,11 @@ def view_orders(request):
                 continue
             order.restaurants &= set(rest_product)
 
-        delivery_coordinates = fetch_coordinates(settings.YANDEX_API_KEY, order.address)
+        delivery_coordinates = fetch_coordinates(settings.YANDEX_GEO_API_KEY, order.address)
         if delivery_coordinates:
             coordinates_error = False
             for restaurant in order.restaurants:
-                restaurant_coordinates = fetch_coordinates(settings.YANDEX_API_KEY, restaurant.address)
+                restaurant_coordinates = fetch_coordinates(settings.YANDEX_GEO_API_KEY, restaurant.address)
                 restaurant_dist = round(
                     distance.distance(restaurant_coordinates, delivery_coordinates).km, 2
                 )

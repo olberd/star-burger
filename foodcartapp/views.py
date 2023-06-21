@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework.parsers import JSONParser
 
+from places.place_utils import save_place
 from .models import Product, Order, ProductInOrder
 
 
@@ -118,7 +119,7 @@ def register_order(request):
         address=serializer.validated_data['address'],
 
     )
-
+    save_place(order.address)
     order_products_fields = serializer.validated_data['products']
     products = [ProductInOrder(
         order=order,

@@ -22,7 +22,7 @@ class Place(models.Model):
     )
     request_date = models.DateField(
         'дата запроса координат',
-        default=timezone.now()
+        default=timezone.now,
     )
 
     class Meta:
