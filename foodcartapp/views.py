@@ -1,15 +1,13 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
-from phonenumber_field.phonenumber import PhoneNumber
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import CharField, IntegerField
+from rest_framework.fields import IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, ModelSerializer
-from rest_framework.parsers import JSONParser
 
 from places.place_utils import save_place
 from .models import Product, Order, ProductInOrder
@@ -131,4 +129,3 @@ def register_order(request):
     ProductInOrder.objects.bulk_create(products)
 
     return Response(OrderSerializer(order).data)
-

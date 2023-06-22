@@ -6,12 +6,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from django.conf import settings
 
 from geopy import distance
-
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from places.place_utils import fetch_coordinates
+from places.models import Place
 
 
 class Login(forms.Form):
@@ -103,10 +101,20 @@ def get_product_restaurants(restaurant_menu_products, order_products):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.with_price().exclude(status='D').order_by('status').\
-        prefetch_related('cooking_restaurant', 'products', 'products__product', )
-    restaurant_menu_products = RestaurantMenuItem.objects.filter(availability=True) \
+    orders = Order.objects\
+        .with_price()\
+        .exclude(status='D')\
+        .order_by('status')\
+        .prefetch_related('cooking_restaurant', 'products', 'products__product', )
+
+    restaurant_menu_products = RestaurantMenuItem.objects\
+        .filter(availability=True) \
         .select_related('product', 'restaurant')
+
+    places = Place.objects.filter(
+        address__in=[order.address for order in orders] + [rest.address for rest in Restaurant.objects.all()]
+    )
+    places = {place.address: place for place in places}
     order_collections = []
     for order in orders:
         order.restaurants = set()
@@ -121,18 +129,21 @@ def view_orders(request):
                 continue
             order.restaurants &= set(rest_product)
 
-        delivery_coordinates = fetch_coordinates(settings.YANDEX_GEO_API_KEY, order.address)
-        if delivery_coordinates:
+        delivery_place = places.get(order.address)
+        delivery_coordinates = delivery_place.latitude, delivery_place.longitude
+        print(delivery_coordinates)
+        if None in delivery_coordinates:
+            coordinates_error = True
+        else:
             coordinates_error = False
             for restaurant in order.restaurants:
-                restaurant_coordinates = fetch_coordinates(settings.YANDEX_GEO_API_KEY, restaurant.address)
+                restaurant_place = places.get(restaurant.address)
+                restaurant_coordinates = restaurant_place.latitude, restaurant_place.longitude
                 restaurant_dist = round(
                     distance.distance(restaurant_coordinates, delivery_coordinates).km, 2
                 )
                 restaurant_distance.append((restaurant.name, restaurant_dist))
             restaurant_distance.sort(key=lambda x: x[1])
-        else:
-            coordinates_error = True
 
         order_collection = {
             'id': order.id,
