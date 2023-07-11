@@ -9,3 +9,4 @@ markdown==3.4.3
 django-filter==23.2
 geopy==2.3.0
 requests==2.31.0
+rollbar==0.16.3

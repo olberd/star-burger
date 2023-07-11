@@ -10,7 +10,7 @@ env = Env()
 env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 SECRET_KEY = env('SECRET_KEY')
@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'places',
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -42,8 +43,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
-
 ROOT_URLCONF = 'star_burger.urls'
 
 DEBUG_TOOLBAR_PANELS = [
@@ -131,4 +133,10 @@ YANDEX_GEO_API_KEY = env('YANDEX_GEO_API_KEY')
 
 mimetypes.add_type("application/javascript", ".js", True)
 
-
+ROLLBAR = {
+    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+    'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
+    # 'environment': 'development' if DEBUG else 'production',
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
