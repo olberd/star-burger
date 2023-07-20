@@ -2,8 +2,6 @@ import mimetypes
 import os
 
 import dj_database_url
-from django.conf.global_settings import DATABASES
-
 from environs import Env
 
 
@@ -101,7 +99,9 @@ MEDIA_URL = '/media/'
 #     }
 # }
 
-DATABASES['default'] = dj_database_url.config(default=env('POSTGRES_CONNECTION'))
+DATABASES = {
+            'default': dj_database_url.config(default=env('POSTGRES_CONNECTION'))
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
