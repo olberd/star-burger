@@ -2,7 +2,6 @@ import mimetypes
 import os
 
 import dj_database_url
-
 from environs import Env
 
 
@@ -16,7 +15,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '87.249.50.47', '1306500-cg33509.tw1.ru'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '87.249.50.47', '24burger.ru',])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     'places',
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -42,8 +42,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
-
 ROOT_URLCONF = 'star_burger.urls'
 
 DEBUG_TOOLBAR_PANELS = [
@@ -84,15 +85,9 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-#DATABASES = {
-#    'default': dj_database_url.config(
-#        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-#    )
-#}
-
 DATABASES = {
-	'default': dj_database_url.config(default=env('POSTGRES_CONNECTION'))
-	}
+            'default': dj_database_url.config(default=env('POSTGRES_CONNECTION'))
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -135,4 +130,10 @@ YANDEX_GEO_API_KEY = env('YANDEX_GEO_API_KEY')
 
 mimetypes.add_type("application/javascript", ".js", True)
 
-
+ROLLBAR = {
+    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+    'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
+    # 'environment': 'development' if DEBUG else 'production',
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
