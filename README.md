@@ -163,6 +163,9 @@ DATABASE_URL=postgres://username:password@host:port/db_name
 ## Деплой проекта
 Запустите файл в каталоге проекта `deploy.sh`
 
+## Сайт в интернет
+https://24burger.ru/
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
