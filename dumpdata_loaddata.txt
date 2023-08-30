@@ -1,0 +1,7 @@
+python -Xutf8  manage.py dumpdata foodcartapp places -o burger.json
+
+python manage.py dumpdata --exclude auth.permission --exclude contenttypes > db.json
+
+
+django.db.utils.ProgrammingError: Problem installing fixture '/opt/star-burger/burger.json': Could not load places.Place(pk=1): relation "places_place" does not exist
+LINE 1: UPDATE "places_place" SET "address" = 'г.Орел ул.Веселая 25'...
