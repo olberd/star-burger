@@ -42,8 +42,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
+
 ]
 ROOT_URLCONF = 'star_burger.urls'
 
@@ -130,10 +129,13 @@ YANDEX_GEO_API_KEY = env('YANDEX_GEO_API_KEY')
 
 mimetypes.add_type("application/javascript", ".js", True)
 
-ROLLBAR = {
-    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
-    'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
-    # 'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
-    'root': BASE_DIR,
-}
+if env('ROLLBAR_ACCESS_TOKEN'):
+    MIDDLEWARE.append('rollbar.contrib.django.middleware.RollbarNotifierMiddleware')
+    MIDDLEWARE.append('rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404')
+
+    ROLLBAR = {
+        'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+        'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
+        'code_version': '1.0',
+        'root': BASE_DIR,
+    }
