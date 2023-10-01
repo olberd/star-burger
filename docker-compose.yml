@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    restart: always
+    image: postgres:14.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    container_name: db
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env_dev
+
+  frontend:
+    restart: always
+    volumes:
+      - ./:/app
+    build:
+      context: ./
+      dockerfile: Dockerfile.front
+    command: parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"
+
+  django:
+    restart: always
+    volumes:
+      - ./:/app
+    command: python manage.py runserver 0.0.0.0:8000
+    container_name: django
+    build:
+      context: ./
+      dockerfile: Dockerfile.back
+    env_file:
+      - ./.env_dev
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+      - frontend
+
+volumes:
+  postgres_data: null
