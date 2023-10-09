@@ -1,11 +1,14 @@
-FROM node:alpine
+FROM node:15.14.0-alpine
 
 WORKDIR /app
 
-COPY package.json .
+COPY bundles-src ./bundles-src
 
-RUN npm install -g parcel@latest
+COPY package*.json .
 
-COPY bundles-src bundles-src
+RUN npm install
 
-CMD parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+# COPY . .
+
+CMD ["./node_modules/.bin/parcel", "build", "bundles-src/index.js", "--dist-dir", "bundles", "--public-url", "./"]
+

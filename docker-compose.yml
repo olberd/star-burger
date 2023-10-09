@@ -17,23 +17,23 @@ services:
     volumes:
       - ./:/app
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile.front
-    command: parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"
+ #   command: ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
   django:
     restart: always
     volumes:
       - ./:/app
-    command: python manage.py runserver 0.0.0.0:8000
     container_name: django
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile.back
     env_file:
       - ./.env_dev
     ports:
-      - "8080:8000"
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
       - frontend
