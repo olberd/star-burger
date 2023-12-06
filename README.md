@@ -172,6 +172,55 @@ DATABASE_URL=postgres://username:password@host:port/db_name
 ## Сайт в интернет
 https://24burger.ru/
 
+## Развертывание проекта с помощью `Docker`
+Обратитесь к пункту `Как запустить prod-версию сайта`, чтобы заполнить `.env` файл необходимыми переменными окружения.
+
+Настройки, что для `Development`, что для `Production` фактически идентичны, разница лишь в настройке `DEBUG`. Для `Production` она со значением `False`.
+
+### _Development_
+
+Перейдите в директорию `docker_development/` и выполните команду:
+```
+docker compose up -d
+```
+После того, как проект будет развернут необходимо выполнить маграции:
+```
+docker exec -it backend python manage.py migrate --noinput
+```
+Сайт будет доступен по [адресу](http://127.0.0.1:8000/).
+### _Production_
+Перейдите в директорию `docker_production/`. Дополните `nginx.conf` вашим `ip` или `доменом` на строке, содержащей `listen`
+```
+listen ********:80;
+```
+Выполните запуск контейнеров:
+```
+docker compose up -d
+```
+После того, как проект будет развернут необходимо выполнить маграции:
+```
+docker exec -it backend python manage.py migrate --noinput
+```
+Сайт будет доступен на вашем `ip-сервере/домене`, который вы арендовали.
+
+### _Production обновление кода_
+Для обновления кода в директории `docker_production/` лежит файл `deploy.sh`. С его помощью можно обновить контейнеры.
+
+Разрешите исполнять файл скрипта следующей командой:
+```
+chmod 755 deploy deploy.sh
+```
+Выполните сам скрипт:
+```
+./deploy.sh
+```
+Не забудьте выполнить миграции:
+```
+docker exec -it backend python manage.py migrate --noinput
+```
+
+
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
