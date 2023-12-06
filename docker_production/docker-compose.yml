@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+
+  db:
+    container_name: db
+    image: postgres:14.0-alpine
+    env_file:
+      - ../.env
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    restart: unless-stopped
+
+  backend:
+    container_name: backend
+    build:
+      context: ../.
+      dockerfile: Dockerfile.back
+    ports:
+      - '8000:8000'
+    volumes:
+      - ../bundles:/app/bundles/
+      - ../media:/app/media/
+      - ../staticfiles:/app/staticfiles/
+    env_file:
+      - ../.env
+    command: bash -c 'python manage.py collectstatic --no-input && gunicorn -b 0.0.0.0:8000 star_burger.wsgi:application'
+    depends_on:
+      db:
+        condition: service_started
+      frontend:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../.
+      dockerfile: Dockerfile.front
+    volumes:
+      - ../bundles:/app/bundles
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    volumes:
+      - ../media:/app/media/
+      - ../staticfiles:/app/staticfiles/
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  postgres:
