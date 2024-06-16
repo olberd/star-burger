@@ -9,17 +9,17 @@ env = Env()
 env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, '../../staticfiles')
 
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '87.249.50.47', '24burger.ru',])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '87.249.50.47', '24burger.ru', ])
 
 INSTALLED_APPS = [
-    'foodcartapp.apps.FoodcartappConfig',
-    'restaurateur.apps.RestaurateurConfig',
+    'backend.foodcartapp.apps.FoodcartappConfig',
+    'backend.restaurateur.apps.RestaurateurConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'phonenumber_field',
     'rest_framework',
-    'places',
+    'backend.places',
 ]
 
 
@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 
 ]
-ROOT_URLCONF = 'star_burger.urls'
+ROOT_URLCONF = 'backend.star_burger.urls'
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.versions.VersionsPanel',
@@ -65,7 +65,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR, "../../templates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -81,7 +81,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'star_burger.wsgi.application'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
@@ -121,8 +121,8 @@ INTERNAL_IPS = [
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets"),
-    os.path.join(BASE_DIR, "bundles"),
+    os.path.join(BASE_DIR, "frontend/../../frontend/assets"),
+    os.path.join(BASE_DIR, "frontend/../../frontend/bundles"),
 ]
 
 YANDEX_GEO_API_KEY = env('YANDEX_GEO_API_KEY')

@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from places.models import Place
+from backend.places.models import Place
 
 
 def fetch_coordinates(apikey, address):

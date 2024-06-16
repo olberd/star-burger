@@ -9,7 +9,7 @@ from rest_framework.fields import IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from places.place_utils import save_place
+from backend.places.place_utils import save_place
 from .models import Product, Order, ProductInOrder
 
 

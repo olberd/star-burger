@@ -1,4 +1,3 @@
-import requests
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -8,8 +7,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 from geopy import distance
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from places.models import Place
+from backend.foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from backend.places.models import Place
 
 
 class Login(forms.Form):
@@ -32,7 +31,7 @@ class Login(forms.Form):
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         form = Login()
-        return render(request, "login.html", context={
+        return render(request, "templates/login.html", context={
             'form': form
         })
 
@@ -50,7 +49,7 @@ class LoginView(View):
                     return redirect("restaurateur:RestaurantView")
                 return redirect("start_page")
 
-        return render(request, "login.html", context={
+        return render(request, "templates/login.html", context={
             'form': form,
             'ivalid': True,
         })
@@ -78,7 +77,7 @@ def view_products(request):
             (product, ordered_availability)
         )
 
-    return render(request, template_name="products_list.html", context={
+    return render(request, template_name="templates/products_list.html", context={
         'products_with_restaurant_availability': products_with_restaurant_availability,
         'restaurants': restaurants,
     })
@@ -86,7 +85,7 @@ def view_products(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_restaurants(request):
-    return render(request, template_name="restaurants_list.html", context={
+    return render(request, template_name="templates/restaurants_list.html", context={
         'restaurants': Restaurant.objects.all(),
     })
 
@@ -159,7 +158,7 @@ def view_orders(request):
             'cooking_restaurant': order.cooking_restaurant,
         }
         order_collections.append(order_collection)
-    return render(request, template_name='order_items.html', context={
+    return render(request, template_name='templates/order_items.html', context={
         'order_collections': order_collections,
 
     })

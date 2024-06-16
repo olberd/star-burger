@@ -15,7 +15,7 @@ services:
     container_name: backend
     build:
       context: ../.
-      dockerfile: Dockerfile.back
+      dockerfile: ../backend/Dockerfile.back
     ports:
       - '8000:8000'
     volumes:
@@ -36,7 +36,7 @@ services:
     container_name: frontend
     build:
       context: ../.
-      dockerfile: Dockerfile.front
+      dockerfile: ../frontend/Dockerfile.front
     volumes:
       - ../bundles:/app/bundles
 
